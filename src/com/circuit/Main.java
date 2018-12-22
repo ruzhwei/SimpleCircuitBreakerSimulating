@@ -54,7 +54,7 @@ public class Main {
                 }
             }).start();
 
-            // 模拟随机请求
+            // 随机请求模拟
             try {
                 Thread.sleep(new Random().nextInt(5) * 100);
             } catch (InterruptedException e) {
