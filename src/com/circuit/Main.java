@@ -40,14 +40,14 @@ public class Main {
                             }
                             countDownLatch.countDown();
                         } else {
-                            System.out.println("拦截业务逻辑操作");
+                            System.out.println("拦截业务操作");
                             //模拟自旋
                             Thread.sleep(500);
                             //失败的线程在自旋之后重新获取任务
                             Thread.currentThread().run();
                         }
                     }catch (Exception e){
-                        System.out.println("业务执行失败了");
+                        System.out.println("业务执行失败");
                         // 熔断器计数器
                         circuitBreaker.countFailNum();
                     }
