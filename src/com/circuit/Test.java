@@ -7,13 +7,13 @@ import java.util.concurrent.TimeUnit;
 import com.circuit.cb.CircuitBreaker;
 import com.circuit.cb.LocalCircuitBreaker;
 
-public class Main {
+public class Test {
 
     public static void main(String[] args) throws InterruptedException {
         final int maxNum = 200;
         final CountDownLatch countDownLatch = new CountDownLatch(maxNum);
 
-        final CircuitBreaker circuitBreaker = new LocalCircuitBreaker("5/20", 5, "5/10", 3);
+        final CircuitBreaker circuitBreaker = new LocalCircuitBreaker("5/20", 10, "5/10", 2);
 
         for (int i=0; i < maxNum; i++){
             new Thread(new Runnable() {
@@ -29,7 +29,7 @@ public class Main {
                         // 过熔断器
                         if (circuitBreaker.canPassCheck()){
                             // do something
-                            System.out.println("正常业务逻辑操作");
+                            System.out.println("正常操作");
 
                             // 模拟后期的服务恢复状态
                             if (countDownLatch.getCount() >= maxNum/2){
@@ -38,23 +38,20 @@ public class Main {
                                     throw new Exception("mock error");
                                 }
                             }
-                            countDownLatch.countDown();
-                        } else {
-                            System.out.println("拦截业务操作");
-                            //模拟自旋
-                            Thread.sleep(500);
-                            //失败的线程在自旋之后重新获取任务
-                            Thread.currentThread().run();
+                        } else if(!circuitBreaker.canPassCheck()){
+                            System.out.println("拦截操作");
                         }
                     }catch (Exception e){
-                        System.out.println("业务执行失败");
+                        System.out.println("操作失败");
                         // 熔断器计数器
                         circuitBreaker.countFailNum();
                     }
+
+                    countDownLatch.countDown();
                 }
             }).start();
 
-            // 模拟随机请求的
+            // 模拟随机请求
             try {
                 Thread.sleep(new Random().nextInt(5) * 100);
             } catch (InterruptedException e) {
